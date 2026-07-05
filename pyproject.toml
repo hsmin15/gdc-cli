@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gdc-cli"
+version = "0.2.0"
+description = "GDC metadata search, download, and ML-table assembly CLI."
+requires-python = ">=3.10"
+dependencies = [
+  "pandas",
+  "pyarrow",
+  "PyYAML",
+  "requests",
+  "rich",
+  "tenacity",
+  "typer",
+]
+
+[project.scripts]
+gdc = "gdc_cli.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["gdc_cli*"]
+
+[tool.setuptools.package-data]
+gdc_cli = ["aliases.yaml"]

@@ -1,0 +1,326 @@
+# GDC 필드/필터 별칭.
+#
+# - fields: 직관적 짧은 이름 -> 실제 GDC 필드 경로(리스트). `gdc search`/`gdc-chat`의
+#   --fields 에서 사용. 검증은 항상 엔드포인트별 _mapping 으로 이루어짐.
+# - filters: 이름 -> {field, op, value} 단일 절. `--alias name` 또는 `--name` 플래그로
+#   사용하며, 여러 개를 함께 주면 AND 로 결합된다(예: `--rnaseq --star_counts`).
+#
+# 값(value)은 GDC facet 이 실제로 반환하는 표기를 그대로 사용한다.
+#   * data_type / experimental_strategy / analysis.workflow_type 는 대소문자를 구분하므로
+#     반드시 Title Case 원문을 써야 한다(소문자로 쓰면 0건).
+#   * data_category / data_format / sample_type / sex_at_birth / vital_status 등은
+#     대소문자를 구분하지 않으나, 여기서는 facet 원문 표기를 따른다.
+#
+# cases 계열 필드는 cases 엔드포인트에서, files 계열(data_type 등)은 files 엔드포인트
+# (= gdc download)에서 유효하다. 같은 개념이라도 엔드포인트에 따라 경로가 다르다
+# (예: cases 에서는 primary_site, files 에서는 cases.primary_site).
+
+fields:
+  # --- 식별자 / 프로젝트 (cases) ---
+  case: [case_id]
+  submitter: [submitter_id]
+  project: [project.project_id]
+  project_name: [project.name]
+  program: [project.program.name]
+  disease: [disease_type]
+  site: [primary_site]
+
+  # --- 인구학 (cases: demographic.*) ---
+  sex: [demographic.sex_at_birth]
+  race: [demographic.race]
+  ethnicity: [demographic.ethnicity]
+  vital: [demographic.vital_status]
+  age_index: [demographic.age_at_index]
+  days_to_birth: [demographic.days_to_birth]
+  days_to_death: [demographic.days_to_death]
+  year_of_death: [demographic.year_of_death]
+  cause_of_death: [demographic.cause_of_death]
+
+  # --- 진단 (cases: diagnoses.*) ---
+  age: [diagnoses.age_at_diagnosis]            # 진단 시 나이(일 단위)
+  diagnosis: [diagnoses.primary_diagnosis]
+  morphology: [diagnoses.morphology]
+  tissue_origin: [diagnoses.tissue_or_organ_of_origin]
+  biopsy_site: [diagnoses.site_of_resection_or_biopsy]
+  icd10: [diagnoses.icd_10_code]
+  year_dx: [diagnoses.year_of_diagnosis]
+  grade: [diagnoses.tumor_grade]
+  tumor_class: [diagnoses.classification_of_tumor]
+  prior_malignancy: [diagnoses.prior_malignancy]
+  prior_treatment: [diagnoses.prior_treatment]
+  synchronous_malignancy: [diagnoses.synchronous_malignancy]
+  progression: [diagnoses.progression_or_recurrence]
+  disease_status: [diagnoses.last_known_disease_status]
+  laterality: [diagnoses.laterality]
+  days_to_dx: [diagnoses.days_to_diagnosis]
+  days_to_recurrence: [diagnoses.days_to_recurrence]
+  days_to_last_followup: [diagnoses.days_to_last_follow_up]
+
+  # --- 병기 / 등급 (cases: diagnoses.*) ---
+  stage: [diagnoses.ajcc_pathologic_stage]
+  clinical_stage: [diagnoses.ajcc_clinical_stage]
+  stage_t: [diagnoses.ajcc_pathologic_t]
+  stage_n: [diagnoses.ajcc_pathologic_n]
+  stage_m: [diagnoses.ajcc_pathologic_m]
+  figo_stage: [diagnoses.figo_stage]
+  gleason: [diagnoses.gleason_grade_group]
+  gleason_score: [diagnoses.gleason_score]
+
+  # --- 치료 (cases: diagnoses.treatments.*) ---
+  treatment: [diagnoses.treatments.treatment_type]
+  treatment_agent: [diagnoses.treatments.therapeutic_agents]
+  treated: [diagnoses.treatments.treatment_or_therapy]
+  treatment_intent: [diagnoses.treatments.treatment_intent_type]
+  treatment_outcome: [diagnoses.treatments.treatment_outcome]
+  treatment_line: [diagnoses.treatments.regimen_or_line_of_therapy]
+  days_to_treatment_start: [diagnoses.treatments.days_to_treatment_start]
+  days_to_treatment_end: [diagnoses.treatments.days_to_treatment_end]
+
+  # --- 노출 / 생활습관 (cases: exposures.*) ---
+  smoking: [exposures.tobacco_smoking_status]
+  pack_years: [exposures.pack_years_smoked]
+  cigarettes_per_day: [exposures.cigarettes_per_day]
+  smoking_onset: [exposures.tobacco_smoking_onset_year]
+  smoking_quit: [exposures.tobacco_smoking_quit_year]
+  alcohol: [exposures.alcohol_history]
+  alcohol_intensity: [exposures.alcohol_intensity]
+
+  # --- 가족력 / 추적 (cases: family_histories.*, follow_ups.*) ---
+  family_cancer: [family_histories.relative_with_cancer_history]
+  family_diagnosis: [family_histories.relationship_primary_diagnosis]
+  followup_days: [follow_ups.days_to_follow_up]
+
+  # --- 검체 / 바이오스펙 (cases: samples.*) ---
+  sample_type: [samples.sample_type]
+  tissue_type: [samples.tissue_type]
+  tumor_descriptor: [samples.tumor_descriptor]
+  preservation: [samples.preservation_method]
+  specimen: [samples.specimen_type]
+  days_to_collection: [samples.days_to_collection]
+  sample_id: [samples.sample_id]
+  aliquot: [samples.portions.analytes.aliquots.aliquot_id]
+
+  # --- 생존 분석 묶음 (cases) ---
+  OS: [demographic.vital_status, demographic.days_to_death, diagnoses.days_to_last_follow_up]
+  survival: [demographic.vital_status, demographic.days_to_death, diagnoses.days_to_last_follow_up]
+
+  # --- 파일 메타데이터 (files 엔드포인트 / gdc download) ---
+  file: [file_id]
+  filename: [file_name]
+  filesize: [file_size]
+  md5: [md5sum]
+  access: [access]
+  state: [state]
+  category: [data_category]
+  dtype: [data_type]
+  format: [data_format]
+  strategy: [experimental_strategy]
+  platform: [platform]
+  workflow: [analysis.workflow_type]
+  file_case: [cases.case_id]
+  file_project: [cases.project.project_id]
+  file_sample_type: [cases.samples.sample_type]
+  file_submitter: [associated_entities.entity_submitter_id]
+
+filters:
+  # ===== cases 엔드포인트용 코호트 필터 =====
+  female:
+    field: demographic.sex_at_birth
+    op: "="
+    value: female
+  male:
+    field: demographic.sex_at_birth
+    op: "="
+    value: male
+  alive:
+    field: demographic.vital_status
+    op: "="
+    value: alive
+  deceased:
+    field: demographic.vital_status
+    op: "="
+    value: dead
+  lung:
+    field: primary_site
+    op: in
+    value:
+      - Bronchus and lung
+  tumor_sample:
+    field: samples.tissue_type
+    op: "="
+    value: tumor
+  normal_sample:
+    field: samples.tissue_type
+    op: "="
+    value: normal
+
+  # ===== cases 엔드포인트용: 조직형/코호트 별칭(TCGA project id) =====
+  # 예: `gdc search cases --luad ...` 또는 `--alias luad`. 폐암 세부 조직형(LUAD/LUSC)처럼
+  # primary_site 만으로는 구분되지 않는 코호트를 짧게 지정한다. files 엔드포인트에서는
+  # cases.project.project_id 경로가 필요하므로 이 별칭은 cases 계열에서 사용한다.
+  luad:
+    field: project.project_id
+    op: in
+    value: [TCGA-LUAD]
+  lusc:
+    field: project.project_id
+    op: in
+    value: [TCGA-LUSC]
+  brca:
+    field: project.project_id
+    op: in
+    value: [TCGA-BRCA]
+  coad:
+    field: project.project_id
+    op: in
+    value: [TCGA-COAD]
+  read:
+    field: project.project_id
+    op: in
+    value: [TCGA-READ]
+  prad:
+    field: project.project_id
+    op: in
+    value: [TCGA-PRAD]
+  luad_lusc:
+    field: project.project_id
+    op: in
+    value: [TCGA-LUAD, TCGA-LUSC]
+
+  # ===== files 엔드포인트용: 실험 전략(experimental_strategy) — 대소문자 구분 =====
+  rnaseq:
+    field: experimental_strategy
+    op: in
+    value: [RNA-Seq]
+  wxs:
+    field: experimental_strategy
+    op: in
+    value: [WXS]
+  wgs:
+    field: experimental_strategy
+    op: in
+    value: [WGS]
+  mirnaseq:
+    field: experimental_strategy
+    op: in
+    value: [miRNA-Seq]
+  methylation_array:
+    field: experimental_strategy
+    op: in
+    value: [Methylation Array]
+  genotyping_array:
+    field: experimental_strategy
+    op: in
+    value: [Genotyping Array]
+  targeted_seq:
+    field: experimental_strategy
+    op: in
+    value: [Targeted Sequencing]
+  atacseq:
+    field: experimental_strategy
+    op: in
+    value: [ATAC-Seq]
+  scrnaseq:
+    field: experimental_strategy
+    op: in
+    value: [scRNA-Seq]
+  rppa:
+    field: experimental_strategy
+    op: in
+    value: [Reverse Phase Protein Array]
+
+  # ===== files 엔드포인트용: 데이터 타입(data_type) — 대소문자 구분, 표 형태 ML 재료 =====
+  gene_counts:
+    field: data_type
+    op: in
+    value: [Gene Expression Quantification]
+  splice_junction:
+    field: data_type
+    op: in
+    value: [Splice Junction Quantification]
+  isoform_counts:
+    field: data_type
+    op: in
+    value: [Isoform Expression Quantification]
+  mirna_counts:
+    field: data_type
+    op: in
+    value: [miRNA Expression Quantification]
+  somatic_mutation:
+    field: data_type
+    op: in
+    value: [Masked Somatic Mutation]
+  gene_cnv:
+    field: data_type
+    op: in
+    value: [Gene Level Copy Number]
+  cnv_segment:
+    field: data_type
+    op: in
+    value: [Copy Number Segment]
+  methylation_beta:
+    field: data_type
+    op: in
+    value: [Methylation Beta Value]
+  protein_expression:
+    field: data_type
+    op: in
+    value: [Protein Expression Quantification]
+  aligned_reads:
+    field: data_type
+    op: in
+    value: [Aligned Reads]
+  slide_image:
+    field: data_type
+    op: in
+    value: [Slide Image]
+
+  # ===== files 엔드포인트용: 워크플로 / 카테고리 / 포맷 / 접근 =====
+  star_counts:
+    field: analysis.workflow_type
+    op: in
+    value: [STAR - Counts]
+  transcriptome:
+    field: data_category
+    op: in
+    value: [transcriptome profiling]
+  snv:
+    field: data_category
+    op: in
+    value: [simple nucleotide variation]
+  cnv:
+    field: data_category
+    op: in
+    value: [copy number variation]
+  methylation:
+    field: data_category
+    op: in
+    value: [dna methylation]
+  seq_reads:
+    field: data_category
+    op: in
+    value: [sequencing reads]
+  bam_files:
+    field: data_format
+    op: in
+    value: [bam]
+  vcf_files:
+    field: data_format
+    op: in
+    value: [vcf]
+  maf_files:
+    field: data_format
+    op: in
+    value: [maf]
+  tsv_files:
+    field: data_format
+    op: in
+    value: [tsv]
+  open:
+    field: access
+    op: "="
+    value: open
+  controlled:
+    field: access
+    op: "="
+    value: controlled
