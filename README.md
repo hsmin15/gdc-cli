@@ -70,6 +70,32 @@ gdc describe out/lung.parquet
 
 각 명령의 전체 옵션은 `gdc <명령> --help` 또는 [`CLAUDE.md`](CLAUDE.md)의 명령어 레퍼런스를 참고.
 
+## MCP 서버 (선택)
+
+이 도구는 [MCP(Model Context Protocol)](https://modelcontextprotocol.io) 서버로도 노출할 수
+있어, Claude Desktop/Cowork 같은 클라이언트가 CLI 문자열을 조립하는 대신 구조화된 툴 호출로
+GDC를 다룰 수 있다.
+
+```bash
+pip install -e ".[mcp]"
+gdc-mcp          # stdio 트랜스포트로 실행
+```
+
+노출 툴: `gdc_fields`, `gdc_values`, `gdc_aliases`(스키마 introspection), `gdc_search`,
+`gdc_build_dataset_preview`(다운로드 없이 코호트 미리보기), `gdc_describe`, `gdc_version`.
+실제 대량 다운로드(`gdc_build_dataset_run`)는 수 GB·수 분이 걸릴 수 있어, 미리보기로 용량을
+확인한 뒤 `confirm=True`를 넘겨야만 실행되도록 가드레일이 걸려 있다.
+
+Claude Desktop 설정 예시(`claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "gdc": { "command": "gdc-mcp" }
+  }
+}
+```
+
 ## 환경변수
 
 `.env` 파일 또는 셸 환경변수로 설정한다(`.env`는 `.gitignore`에 포함되어 커밋되지 않는다).

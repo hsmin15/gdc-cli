@@ -17,8 +17,12 @@ dependencies = [
   "typer",
 ]
 
+[project.optional-dependencies]
+mcp = ["mcp>=1.2"]
+
 [project.scripts]
 gdc = "gdc_cli.cli:main"
+gdc-mcp = "gdc_cli.mcp_server:main"
 
 [tool.setuptools.packages.find]
 include = ["gdc_cli*"]
